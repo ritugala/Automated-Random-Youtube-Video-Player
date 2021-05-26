@@ -1,7 +1,7 @@
 # Automated-Random-Youtube-Video-Playlist-Downloader-And-Player
 
 
-Automatically Download a Random Video from a given Youtube Playlist into a required output folder. 
+Automatically Download a Random Video from a given Youtube Playlist into a required output folder. (No Youtube API, scraping used)
 
 
 The deployment.bat automatically runs the video (can be merged with Windows Task Scheduler)
