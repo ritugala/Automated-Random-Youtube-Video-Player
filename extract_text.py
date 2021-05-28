@@ -4,11 +4,13 @@ import re
 import json
 import random
 import pytube
-import sys
 import argparse
+from pathlib import Path
+import os
+import datetime
 
 
-def get_soup(link="https://www.youtube.com/playlist?list=PLE5lGVrS3V9dYEeiY79ix7gEkb1ucCSKD"):
+def get_soup(link):
 	headers = {
 	        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36',
 	        'Content-Type': 'text/html',
@@ -32,29 +34,30 @@ def get_videos_list(soup):
 	return videoIds
 
 
-def download_video(today_video, output_path="C:\\Users\\Ritu\\Downloads\\HIIT-Downloads"):
+def download_video(today_video, output_path):
 	link = "https://www.youtube.com/watch?v="+today_video
 	yt = pytube.YouTube(link)
 	stream = yt.streams.filter(file_extension='mp4').get_by_resolution('720p')
-	stream.download(output_path=output_path, filename=stream.default_filename.replace(" ", "-").replace("??", "-"))
+	filename=stream.default_filename.replace(" ", "-").replace("??", "-")
+	file_path = output_path+"\\"+filename
+	my_file = Path(file_path)
+	if my_file.is_file():
+		# Modify last_modified_date as rn.
+		os.utime(file_path, (datetime.datetime.now().timestamp(), datetime.datetime.now().timestamp()))
+	else:
+		stream.download(output_path=output_path, filename=filename)
 
 
 def main():
 	parser = argparse.ArgumentParser(description="Provide additional output-file parameters and youtube link")
-	parser.add_argument('-l', '--link', help='Youtube playlist link', required=False)
-	parser.add_argument('-o', '--output-path', help='Output Directory for storing the video', required=False)
+	parser.add_argument('-l', '--link', help='Youtube playlist link', required=False, default="https://www.youtube.com/playlist?list=PLE5lGVrS3V9dYEeiY79ix7gEkb1ucCSKD")
+	parser.add_argument('-o', '--output-path', help='Output Directory for storing the video', required=False, default="C:\\Users\\Ritu\\Downloads\\HIIT-Downloads")
 	args = parser.parse_args()
-	if args.link is not None:
-		soup = get_soup(args.link)
-	else:
-		soup = get_soup()
 
+	soup = get_soup(args.link)
 	videoList = get_videos_list(soup)
 	todayVideo = random.choice(videoList)
-	if args.output_path:
-		download_video(todayVideo, sys.argv[2])
-	else:
-		download_video(todayVideo)
+	download_video(todayVideo, args.output_path)
 
 
 if __name__ == "__main__":
